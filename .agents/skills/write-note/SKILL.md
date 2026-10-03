@@ -46,6 +46,6 @@ Hardware/Environment: < GPUs, torch/CUDA versions, anything the procedure depend
 
 - Verify before writing: every command in the note must have been run (or be trivially
   derivable from one that was). Cite code locations as `path/to/file:line`.
-- Keep it under ~60 lines. Plain Markdown, light structure; no emoji.
+- Plain Markdown, light structure; no emoji.
 - Notes are untracked by default — do not commit unless the user asks.
 - After writing, reply with the path and a 2-3 line summary, not the full content.
