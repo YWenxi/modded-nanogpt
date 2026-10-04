@@ -10,11 +10,18 @@ H100 world-record history, and [notes/](notes/) for setup and experiment writeup
 
 ## Record tracker
 
+### Track 1: GPT-2 small (target 3.28)
+
 | # | Record time | Date | Title | Description | Record |
 | - | - | --- | --- | --- | --- |
 | 1 | 7.01 / 7.04 minutes (2 runs) | 2026-10-03 | FlexAttention + bf16 baseline | First full runs on 8xA100. Val 3.2764 / 3.2727 vs 3.28 target (beats the official H100 mean of 3.2787; 2.5x slower than H100's 168.8s) | [a100_records/2026-10-03_FlexBF16Baseline](a100_records/2026-10-03_FlexBF16Baseline) |
-| 2 | 63.04 minutes | 2026-10-03 | GPT-2 Medium (2.92 track) | Medium track (350M) on 8xA100. Val 2.9201 vs 2.92 target | [a100_records/2026-10-03_FlexBF16Medium](a100_records/2026-10-03_FlexBF16Medium) |
-| 3 | 6.95 minutes | 2026-10-04 | AdamW optimizer swap | Muon replaced with distributed AdamW (DistAdamW) on all hidden matrices. Val 3.6017 vs Muon baseline 3.2727 at the same 1695 steps | [a100_records/2026-10-04_AdamW](a100_records/2026-10-04_AdamW) |
+| 2 | 6.95 minutes | 2026-10-04 | AdamW optimizer swap | Muon replaced with distributed AdamW (DistAdamW) on all hidden matrices. Val 3.6017 vs Muon baseline 3.2727 at the same 1695 steps | [a100_records/2026-10-04_AdamW](a100_records/2026-10-04_AdamW) |
+
+### Track 2: GPT-2 Medium (target 2.92)
+
+| # | Record time | Date | Title | Description | Record |
+| - | - | --- | --- | --- | --- |
+| 1 | 63.04 minutes | 2026-10-03 | FlexAttention + bf16 baseline | Medium track (350M) on 8xA100. Val 2.9201 vs 2.92 target | [a100_records/2026-10-03_FlexBF16Medium](a100_records/2026-10-03_FlexBF16Medium) |
 
 Each record directory contains the exact standalone training script used, its `run.sh`
 launcher, run logs, and loss-curve plots.
