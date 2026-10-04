@@ -388,8 +388,8 @@ def print0(s, console=False):
 from torch._logging._internal import trace_structured # noqa: E402
 import torch._inductor.codecache # noqa: E402
 import torch._inductor.graph # noqa: E402
-def _patched_trace_structured(name, metadata_fn, **kwargs):
-    if name == "inductor_output_code":
+def _patched_trace_structured(name, metadata_fn=dict, **kwargs):
+    if name == "inductor_output_code" and metadata_fn is not dict:
         print0(f"inductor_output_code: {metadata_fn().get("filename", "Unknown")}")
     trace_structured(name, metadata_fn, **kwargs)
 torch._inductor.codecache.trace_structured = _patched_trace_structured
@@ -551,14 +551,18 @@ for step in range(train_steps + 1):
         frac = min(step / 300, 1) # momentum warmup for muon
         group["momentum"] = (1 - frac) * 0.85 + frac * 0.95
     # step the optimizers
+    grad_norm_sq = torch.zeros((), device="cuda")
     for opt in optimizers:
         torch.futures.collect_all(opt2futures[opt]).wait()
+        # this opt's grads are now averaged across ranks; track the grad norm before opt.step() consumes them
+        grad_norm_sq += torch.stack(torch._foreach_norm([p.grad for p in opt2params[opt]])).float().square().sum()
         opt.step()
+    grad_norm = grad_norm_sq.sqrt()
     # null the gradients
     model.zero_grad(set_to_none=True)
     # logging
     approx_training_time_ms = training_time_ms + 1000 * (time.perf_counter() - t0)
-    print0(f"step:{step+1}/{train_steps} train_loss:{loss.item():.4f} train_time:{approx_training_time_ms:.0f}ms step_avg:{approx_training_time_ms/(step + 1):.2f}ms", console=True)
+    print0(f"step:{step+1}/{train_steps} train_loss:{loss.item():.4f} grad_norm:{grad_norm:.4f} train_time:{approx_training_time_ms:.0f}ms step_avg:{approx_training_time_ms/(step + 1):.2f}ms", console=True)
 
 print0(f"peak memory allocated: {torch.cuda.max_memory_allocated() // 1024 // 1024} MiB "
     f"reserved: {torch.cuda.max_memory_reserved() // 1024 // 1024} MiB", console=True)
