@@ -15,7 +15,7 @@ H100 world-record history, and [notes/](notes/) for setup and experiment writeup
 | # | Record time | Date | Title | Description | Record |
 | - | - | --- | --- | --- | --- |
 | 1 | 7.01 / 7.04 minutes (2 runs) | 2026-10-03 | FlexAttention + bf16 baseline | First full runs on 8xA100. Val 3.2764 / 3.2727 vs 3.28 target (beats the official H100 mean of 3.2787; 2.5x slower than H100's 168.8s) | [a100_records/2026-10-03_FlexBF16Baseline](a100_records/2026-10-03_FlexBF16Baseline) |
-| 2 | 6.95 minutes | 2026-10-04 | AdamW optimizer swap | Muon replaced with distributed AdamW (DistAdamW) on all hidden matrices. Val 3.6017 vs Muon baseline 3.2727 at the same 1695 steps | [a100_records/2026-10-04_AdamW](a100_records/2026-10-04_AdamW) |
+| 2 | — (target not reached) | 2026-10-04 | AdamW optimizer swap | Muon replaced with distributed AdamW (DistAdamW) on all hidden matrices. Val 3.6017 vs Muon baseline 3.2727 at the same 1695 steps, 417s train. Not a record attempt — ablation only | [a100_records/2026-10-04_AdamW](a100_records/2026-10-04_AdamW) |
 
 ### Track 2: GPT-2 Medium (target 2.92)
 
