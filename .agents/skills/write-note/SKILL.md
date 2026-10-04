@@ -1,11 +1,13 @@
 ---
 name: write-note
-description: Write a project note to notes/{date}_{topic}.md — setup records, procedures, experiment findings. Use when the user asks to "write a note", record how something was set up, or document a procedure or finding.
+description: Write a project note to notes/{date}_{topic}/note.md — setup records, procedures, experiment findings. Use when the user asks to "write a note", record how something was set up, or document a procedure or finding.
 ---
 
 # Note writing
 
-Notes live in `notes/` (repo root) and are named `{YYYY-MM-DD}_{topic}.md`:
+Notes live in `notes/` (repo root). Each note is a directory named `{YYYY-MM-DD}_{topic}/`
+containing `note.md`, plus any assets (images, logs) the note references — keep them in the
+same directory so relative links like `![fig](plot.png)` work:
 
 - Date: today, from the session date reminder or `date +%F`. Never guess.
 - Topic: short lowercase slug with underscores, e.g. `a100_dev_setup`, `flex_bf16_fallback`.
