@@ -56,7 +56,9 @@ is what makes the sliding window a simple prefix truncation.
 `build_bm` truncates each row's index list arithmetically via clamping: keep at most
 `W - full_count` partial blocks (at least 1, so a query always sees its own block) and at most
 `W - 1` full blocks. It returns two masks: long (window W) and short (W // 2), assigned per layer
-at train_gpt.py:739 — layers 0, 4, 7, 11 are long, the rest short.
+at train_gpt.py:739 — layers 0, 4, 7, 11 are long, the rest short. Note layer 7's long mask is
+unused because that layer has no attention at all (see next section), so only layers 0, 4, 11
+actually perform long-window attention.
 
 The window comes from `get_window_size_blocks` (train_gpt.py:922): `next_multiple_of_n(1728*x, 128)`
 where `x = step/num_iterations`, so it ramps 128 -> 1792 tokens (rounded up to block multiples) and
@@ -67,6 +69,28 @@ stays block-quantized so `torch.compile(dynamic=False)` never recompiles.
 First-batch stats: 49,152 tokens, 37 documents -> average doc ~1,300 tokens, shorter than the final
 1,792-token window. The window only binds on the minority of long documents; elsewhere the document
 boundary truncates first, so the mask behaves like plain causal varlen attention.
+
+## Related: layer 7 has no attention
+
+`Block.__init__` skips the attention module entirely for layer 7 (`if layer_idx != 7`,
+train_gpt.py:643). Origin: speedrun record #17 (2024-12-17, "Sparsify value embeddings, improve
+rotary embeddings, drop an attn layer", by @YouJiacheng; log + stats in
+records/121724_SparsifyEmbeds/, validated over 1,261 runs at mean val 3.2794). Per the author's
+changelog (https://x.com/YouJiacheng/status/1868938024731787640):
+
+| change | steps | time |
+|---|---|---|
+| Truncate RoPE | 1460 | 224.5s |
+| ValueEmbed `[0..5,5..0]` -> `[0,1,2,None,...,None,0,1,2]` | 1470 | 222s |
+| Remove the 8th attention | 1490 | 214.9s |
+
+Removing the layer slightly hurt per-step quality (1470 -> 1490 steps needed) but made each step
+enough cheaper that total wall-clock dropped ~7s — a net win under the speedrun metric. The
+records don't say why index 7 specifically; consistent with the U-net structure (layers 0-5
+encode, 6-11 decode with skip connections from their encoder counterparts), layer 7 sits just
+past the bottleneck and receives a fresh skip from layer 4, making its attention the most
+redundant — same rationale as stripping value embeddings from all six middle layers
+(`012...012`) in the same record.
 
 ## Visualization
 
