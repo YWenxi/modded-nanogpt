@@ -16,12 +16,15 @@ H100 world-record history, and [notes/](notes/) for setup and experiment writeup
 | - | - | --- | --- | --- | --- |
 | 1 | 7.01 / 7.04 minutes (2 runs) | 2026-10-03 | FlexAttention + bf16 baseline | First full runs on 8xA100. Val 3.2764 / 3.2727 vs 3.28 target (beats the official H100 mean of 3.2787; 2.5x slower than H100's 168.8s) | [a100_records/2026-10-03_FlexBF16Baseline](a100_records/2026-10-03_FlexBF16Baseline) |
 | 2 | — (target not reached within 1695 steps) | 2026-10-04 | AdamW optimizer swap | Muon replaced with distributed AdamW (DistAdamW) on all hidden matrices. Val 3.6017 vs Muon baseline 3.2727 at the same 1695 steps, 417s train. Not a record attempt — ablation only | [a100_records/2026-10-04_AdamW](a100_records/2026-10-04_AdamW) |
+| 3 | — (ablation) | 2026-10-08 | Polar Express orthogonalization | Polar Express replaces Newton-Schulz in Muon. Raw PE diverges at step 211; with safety factor val 3.2770, upstream coeffs val 3.2780, both vs NS baseline 3.2750 at equal hyperparameters. Not a record — ablation only | [a100_records/2026-10-08_PolarExpress](a100_records/2026-10-08_PolarExpress) |
+| 4 | 7.05 minutes | 2026-10-09 | NorMuon optimizer | Neuron-wise normalized Muon (per-neuron second momentum on the short side + Frobenius-norm restoration, keeping Muon's step size). Val 3.2732 vs Muon 3.2750 at the same 1695 steps; ahead at every one of the last 5 evals | [a100_records/2026-10-09_NorMuon](a100_records/2026-10-09_NorMuon) |
 
 ### Track 2: GPT-2 Medium (target 2.92)
 
 | # | Record time | Date | Title | Description | Record |
 | - | - | --- | --- | --- | --- |
 | 1 | 63.04 minutes | 2026-10-03 | FlexAttention + bf16 baseline | Medium track (350M) on 8xA100. Val 2.9201 vs 2.92 target | [a100_records/2026-10-03_FlexBF16Medium](a100_records/2026-10-03_FlexBF16Medium) |
+| 2 | 63.05 minutes | 2026-10-09 | NorMuon optimizer | Neuron-wise normalized Muon, same config as the baseline. Val 2.9184 vs Muon 2.9201 at the same 5960 steps (beats the 2.92 target); ahead at all 47 val evals | [a100_records/2026-10-09_NorMuon](a100_records/2026-10-09_NorMuon) |
 
 Each record directory contains the exact standalone training script used, its `run.sh`
 launcher, run logs, and loss-curve plots.
